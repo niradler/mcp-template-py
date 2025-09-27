@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mcp-template-py"
+name = "mcp-server-template"
 version = "0.1.0"
-description = "A comprehensive MCP server template with all features"
+description = "A clean, simple MCP server template"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -32,7 +32,7 @@ dev = [
 ]
 
 [project.scripts]
-mcp-template = "mcp_template.main:main"
+mcp-server = "mcp_template.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mcp_template"]

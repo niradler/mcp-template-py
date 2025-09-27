@@ -528,7 +528,7 @@ wheels = [
 ]
 
 [[package]]
-name = "mcp-template-py"
+name = "mcp-server-template"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

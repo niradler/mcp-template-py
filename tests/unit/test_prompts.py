@@ -2,6 +2,7 @@
 
 import pytest
 from mcp.server.fastmcp import FastMCP
+
 from mcp_template.prompts import register_prompts
 
 
@@ -13,81 +14,27 @@ def mcp_server():
     return mcp
 
 
-def test_hello_world_prompt(mcp_server):
+@pytest.mark.asyncio
+async def test_hello_world_prompt(mcp_server):
     """Test hello world prompt generation."""
-    # Get the prompt function directly
-    prompt_func = None
-    for handler in mcp_server._prompt_handlers.values():
-        if handler.name == "hello_world":
-            prompt_func = handler.handler
-            break
-    
-    assert prompt_func is not None
-    
-    # Test with name
-    result = prompt_func(name="Alice")
-    assert "Alice" in result
-    assert "hello" in result.lower()
-    
+    result = await mcp_server.get_prompt("hello_world", {"name": "Alice"})
+    assert "Alice" in result.messages[0].content.text
+    assert "hello" in result.messages[0].content.text.lower()
+
     # Test with default
-    result = prompt_func()
-    assert "World" in result
+    result = await mcp_server.get_prompt("hello_world", {})
+    assert "World" in result.messages[0].content.text
 
 
-def test_code_review_prompt(mcp_server):
+@pytest.mark.asyncio
+async def test_code_review_prompt(mcp_server):
     """Test code review prompt generation."""
-    # Get the prompt function directly
-    prompt_func = None
-    for handler in mcp_server._prompt_handlers.values():
-        if handler.name == "code_review":
-            prompt_func = handler.handler
-            break
-    
-    assert prompt_func is not None
-    
     code = "def hello():\n    return 'Hello World'"
-    result = prompt_func(code=code, language="python", focus="style")
-    
-    assert "def hello()" in result
-    assert "python" in result
-    assert "style" in result
-
-
-def test_explain_concept_prompt(mcp_server):
-    """Test explain concept prompt generation."""
-    # Get the prompt function directly
-    prompt_func = None
-    for handler in mcp_server._prompt_handlers.values():
-        if handler.name == "explain_concept":
-            prompt_func = handler.handler
-            break
-    
-    assert prompt_func is not None
-    
-    result = prompt_func(concept="recursion", audience="beginner", include_examples="true")
-    
-    assert "recursion" in result
-    assert "beginner" in result
-    assert "examples" in result
-
-
-def test_debug_help_prompt(mcp_server):
-    """Test debug help prompt generation."""
-    # Get the prompt function directly
-    prompt_func = None
-    for handler in mcp_server._prompt_handlers.values():
-        if handler.name == "debug_help":
-            prompt_func = handler.handler
-            break
-    
-    assert prompt_func is not None
-    
-    result = prompt_func(
-        error_message="AttributeError: 'str' object has no attribute 'append'",
-        context="Working with lists",
-        language="python"
+    result = await mcp_server.get_prompt(
+        "code_review", {"code": code, "language": "python", "focus": "style"}
     )
-    
-    assert "AttributeError" in result
-    assert "Working with lists" in result
-    assert "python" in result
+
+    content = result.messages[0].content.text
+    assert "def hello()" in content
+    assert "python" in content
+    assert "style" in content

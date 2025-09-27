@@ -1,49 +1,60 @@
 """Unit tests for server creation."""
 
 import pytest
+
 from mcp_template.server import create_server
 
 
 def test_server_creation():
     """Test that server can be created successfully."""
     server = create_server()
-    
-    # Check that it's a FastMCP server
-    assert hasattr(server, '_tool_handlers')
-    assert hasattr(server, '_prompt_handlers')
-    assert hasattr(server, '_resource_handlers')
-    
-    # Check that handlers are registered
-    assert len(server._tool_handlers) > 0
-    assert len(server._prompt_handlers) > 0
-    assert len(server._resource_handlers) > 0
+
+    # Check that it's a FastMCP server with expected attributes
+    assert hasattr(server, "run")
+    assert hasattr(server, "name")
+    assert server.name == "mcp-server"
 
 
-def test_server_has_expected_tools():
-    """Test that server has the expected tools registered."""
+@pytest.mark.asyncio
+async def test_server_has_tools():
+    """Test that server has tools registered."""
     server = create_server()
-    
-    tool_names = {handler.name for handler in server._tool_handlers.values()}
-    expected_tools = {"echo", "calculate", "timestamp", "text_stats", "json_format", "server_status"}
-    
+
+    # Check that tools are available
+    tools = await server.list_tools()
+    assert len(tools) > 0
+
+    tool_names = {tool.name for tool in tools}
+    expected_tools = {"echo", "advanced_calculator"}
+
     assert expected_tools.issubset(tool_names)
 
 
-def test_server_has_expected_prompts():
-    """Test that server has the expected prompts registered."""
+@pytest.mark.asyncio
+async def test_server_has_prompts():
+    """Test that server has prompts registered."""
     server = create_server()
-    
-    prompt_names = {handler.name for handler in server._prompt_handlers.values()}
-    expected_prompts = {"hello_world", "code_review", "explain_concept", "debug_help"}
-    
+
+    # Check that prompts are available
+    prompts = await server.list_prompts()
+    assert len(prompts) > 0
+
+    prompt_names = {prompt.name for prompt in prompts}
+    expected_prompts = {"hello_world", "code_review"}
+
     assert expected_prompts.issubset(prompt_names)
 
 
-def test_server_has_expected_resources():
-    """Test that server has the expected resources registered."""
+@pytest.mark.asyncio
+async def test_server_has_resources():
+    """Test that server has resources registered."""
     server = create_server()
-    
-    resource_templates = {handler.template for handler in server._resource_handlers.values()}
-    expected_resources = {"template://info", "template://help", "template://status", "template://metrics", "file://{filename}"}
-    
-    assert expected_resources.issubset(resource_templates)
+
+    # Check that resources are available
+    resources = await server.list_resources()
+    assert len(resources) > 0
+
+    resource_uris = {str(resource.uri) for resource in resources}
+    expected_resources = {"server://info", "server://status"}
+
+    assert expected_resources.issubset(resource_uris)

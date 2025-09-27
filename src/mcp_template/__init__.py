@@ -1,4 +1,4 @@
-"""MCP Template - A comprehensive MCP server template."""
+"""MCP Server - A simple MCP server template."""
 
 __version__ = "0.1.0"
 
